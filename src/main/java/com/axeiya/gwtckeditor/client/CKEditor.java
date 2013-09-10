@@ -14,7 +14,10 @@
  */
 package com.axeiya.gwtckeditor.client;
 
+import com.axeiya.gwtckeditor.client.event.HasInstanceReadyHandlers;
 import com.axeiya.gwtckeditor.client.event.HasSaveHandlers;
+import com.axeiya.gwtckeditor.client.event.InstanceReadyEvent;
+import com.axeiya.gwtckeditor.client.event.InstanceReadyHandler;
 import com.axeiya.gwtckeditor.client.event.SaveEvent;
 import com.axeiya.gwtckeditor.client.event.SaveHandler;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -50,7 +53,7 @@ import com.google.gwt.user.client.ui.TextArea;
  * @author Emmanuel COQUELIN <emmanuel.coquelin@axeiya.com>
  */
 public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, HasValueChangeHandlers<String>, ClickHandler, HasAlignment, HasHTML,
-		HasText {
+		HasText, HasInstanceReadyHandlers {
 
 	/**
 	 * Used for catching Save event
@@ -131,6 +134,30 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 		this.config = config;
 		initCKEditor();
 	}
+	
+	/**
+	 * Add an instanceReady handler.
+	 * <p>
+	 * Fired when the CKEDITOR instance is completely created, fully initialized
+	 * and ready for interaction.
+	 * 
+	 * @param handler
+	 *            the instanceReady handler
+	 * @return {@link HandlerRegistration} used to remove this handler
+	 */
+	@Override
+	public HandlerRegistration addInstanceReadyHandler(
+			InstanceReadyHandler handler) {
+		return addHandler(handler, InstanceReadyEvent.TYPE);
+	}
+	
+	private native void bindInstanceReadyEvent() /*-{
+		var selfJ = this;
+		var editor = this.@com.axeiya.gwtckeditor.client.CKEditor::editor;
+		editor.on('instanceReady', function() {
+			@com.axeiya.gwtckeditor.client.event.InstanceReadyEvent::fire(Lcom/axeiya/gwtckeditor/client/event/HasInstanceReadyHandlers;Lcom/axeiya/gwtckeditor/client/CKEditor;)(selfJ, selfJ);
+		});
+	}-*/;
 
 	@Override
 	public HandlerRegistration addSaveHandler(SaveHandler<CKEditor> handler) {
@@ -274,6 +301,7 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 
 			listenToBlur();
 			listenToKey();
+			bindInstanceReadyEvent();
 			/*
 			 * if (config.getBreakLineChars() != null) {
 			 * setNativeBreakLineChars(config.getBreakLineChars()); }
