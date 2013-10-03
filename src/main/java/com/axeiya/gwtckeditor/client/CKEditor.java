@@ -158,7 +158,29 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 			@com.axeiya.gwtckeditor.client.event.InstanceReadyEvent::fire(Lcom/axeiya/gwtckeditor/client/event/HasInstanceReadyHandlers;Lcom/axeiya/gwtckeditor/client/CKEditor;)(selfJ, selfJ);
 		});
 	}-*/;
+	
+	private native void bindChangeEvent() /*-{
+		var selfJ = this;
+		var editor = this.@com.axeiya.gwtckeditor.client.CKEditor::editor;
+		var timer = selfJ.@com.axeiya.gwtckeditor.client.CKEditor::autoSaveTimer;
+		editor.on('change', function() {
+			@com.google.gwt.event.logical.shared.ValueChangeEvent::fire(Lcom/google/gwt/event/logical/shared/HasValueChangeHandlers;Ljava/lang/Object;)(selfJ, editor.getData());
+			timer.@com.axeiya.gwtckeditor.client.CKEditor.AutoSaveTimer::delay()();
+		});
+	}-*/;
 
+	/**
+	 * Fired when the content of the editor is changed.
+	 * 
+	 * Due to performance reasons, it is not verified if the content really
+	 * changed. The editor instead watches several editing actions that usually
+	 * result in changes. This event may thus in some cases be fired when no
+	 * changes happen or may even get fired twice.
+	 * 
+	 * If it is important not to get the change event too often, you should
+	 * compare the previous and the current editor content inside the event
+	 * listener.
+	 */
 	@Override
 	public HandlerRegistration addSaveHandler(SaveHandler<CKEditor> handler) {
 		return addHandler(handler, SaveEvent.getType());
@@ -175,17 +197,6 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 			editor.destroy();
 		}
 	}-*/;
-
-	/**
-	 * Dispatch a blur CKEditor event to a ValueChangeEvent
-	 */
-	private void dispatchBlur() {
-		ValueChangeEvent.fire(this, this.getHTML());
-	}
-
-	private void dispatchKeyPressed() {
-		autoSaveTimer.delay();
-	}
 
 	/**
 	 * {@link #getHTML()}
@@ -299,9 +310,8 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 				setEnabled(this.disabled);
 			}
 
-			listenToBlur();
-			listenToKey();
 			bindInstanceReadyEvent();
+			bindChangeEvent();
 			/*
 			 * if (config.getBreakLineChars() != null) {
 			 * setNativeBreakLineChars(config.getBreakLineChars()); }
@@ -316,22 +326,6 @@ public class CKEditor extends Composite implements HasSaveHandlers<CKEditor>, Ha
 	public boolean isDisabled() {
 		return disabled;
 	}
-
-	private native void listenToBlur() /*-{
-		var me = this;
-		var e = this.@com.axeiya.gwtckeditor.client.CKEditor::editor;
-		e.on('blur', function(ev) {
-			me.@com.axeiya.gwtckeditor.client.CKEditor::dispatchBlur()();
-		});
-	}-*/;
-
-	private native void listenToKey() /*-{
-		var me = this;
-		var e = this.@com.axeiya.gwtckeditor.client.CKEditor::editor;
-		e.on('key', function(ev) {
-			me.@com.axeiya.gwtckeditor.client.CKEditor::dispatchKeyPressed()();
-		});
-	}-*/;
 
 	@Override
 	public void onClick(ClickEvent event) {
