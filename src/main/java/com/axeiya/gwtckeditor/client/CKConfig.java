@@ -27,6 +27,7 @@ import com.google.gwt.i18n.client.LocaleInfo;
  */
 public class CKConfig {
 
+	private boolean readOnly;
 	private String toolbarName;
 	private Toolbar toolbar;
 	private String uiColor;
@@ -150,6 +151,17 @@ public class CKConfig {
 	public void setFileBrowserBrowseUrl(String fileBrowserBrowseUrl) {
 		this.fileBrowserBrowseUrl = fileBrowserBrowseUrl;
 		setNativeFileBrowserBrowseUrl(fileBrowserBrowseUrl);
+	}
+	
+	/**
+	 * @param readOnly
+	 *            If true, makes the editor start in read-only state. Otherwise,
+	 *            it will check if the linked <textarea> element has the
+	 *            disabled attribute.
+	 */
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+		setNativeReadOnly(readOnly);
 	}
 
 	public void setShouldEnterSave(boolean enterShouldSave) {
@@ -496,6 +508,10 @@ public class CKConfig {
 		}
 		return config;
 	}
+	
+	private native void setNativeReadOnly(boolean readOnly)/*-{
+		this.@com.axeiya.gwtckeditor.client.CKConfig::config.readOnly = readOnly;
+	}-*/;
 
 	private native void setNativeFileBrowserBrowseUrl(String browseUrl)/*-{
 		this.@com.axeiya.gwtckeditor.client.CKConfig::config.filebrowserBrowseUrl = browseUrl;
@@ -664,6 +680,10 @@ public class CKConfig {
 		for (String fontSize : fontSizes) {
 			addNativeFontSize(fontSize);
 		}
+	}
+	
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 
 	/**
